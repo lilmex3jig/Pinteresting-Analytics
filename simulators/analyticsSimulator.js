@@ -7,9 +7,10 @@ This would hit the message queue in FIFO order and the EC2 workers would send qu
 const request = require('request');
 
 const userRatioInterestUpdateGenerator = () => {
-  const nums = [...Array(1000000).keys()][Math.floor(Math.random() * 1000000)];
+  const nums = [...Array(10000).keys()][Math.floor(Math.random() * 10000)];
   const interest = ['food', 'fashion', 'products', 'sports', 'travel', 'events', 'design', 'entertainment', 'DIY/crafts', 'photography'][Math.floor(Math.random() * 9)];
   const ratio = [1, 2, 3, 4, 5][Math.floor(Math.random() * 5)];
+  console.log(nums);
   return { user_id: nums, user_ratio: ratio, user_interest: interest };
 };
 
@@ -25,4 +26,6 @@ setInterval(() => {
     if (err) console.log(err);
     console.log(body);
   });
-}, 100);
+}, 10);
+
+

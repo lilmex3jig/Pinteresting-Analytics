@@ -23,16 +23,16 @@ const addUser = (user_id, user_ratio, user_interest, callback) => {
 };
 
 const updateUser = (user_id, user_ratio, user_interest, callback) => {
-  connection.query(`UPDATE users SET user_ratio= ${user_ratio}, user_interest= '${user_interest}' WHERE id= ${user_id}`, (err, results) => {
+  connection.query(`UPDATE users SET user_ratio= ${user_ratio}, user_interest= '${user_interest}' WHERE id=${user_id}`, (err, results) => {
     if (err) console.log(err);
     callback(results);
   });
 };
 
-const addAdvertisement = (ad, callback) => {
-  connection.query('INSERT '+ ad + 'into advertisements', (err, results) => {
-    if (err) console.log(err);
-    callback(results);
+const addAdvertisement = (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status, callback) => {
+  connection.query(`INSERT into advertisements (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status) VALUES (${id}, ${ad_group_id}, '${ad_name}', '${ad_description}', '${ad_page_url}', '${ad_img_url}', '${ad_status}')`, (err, results) => {
+    //if (err) console.log(err);
+    //callback(results);
   });
 };
 

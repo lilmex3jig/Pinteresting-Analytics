@@ -2,13 +2,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('../database-mysql');
+const Promise = require('bluebird');
 const app = express();
 const PORT = 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-
-// This is where client will call for ads, sending in a userID
 
 app.post('/client', (req, res) => {
   console.log('response from post to /client: Success');
@@ -43,6 +41,20 @@ app.get('/ads', (req, res) => {
 app.post('/ads', (req, res) => {
   console.log('deactivating ads');
   res.send('Some ads has been deactivated!');
+});
+
+app.post('/client1', (req, res) => {
+  db.findUser(req.body.user_id) 
+    .then((result) => {
+      return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 250))
+    })
+    .then((results) => {
+      console.log('Here are the ' + results.length + ' ads requested: ', results);
+      res.send(results);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
 });
 
 

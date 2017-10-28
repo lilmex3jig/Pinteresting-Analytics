@@ -4,6 +4,7 @@
   "description": "The project description",
   "main": ".eslintrc.js",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "eslint": "^4.9.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",

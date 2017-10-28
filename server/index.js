@@ -8,17 +8,16 @@ const PORT = 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/client', (req, res) => {
-  console.log('response from post to /client: Success');
-  console.log('Server has recieved userID: ', req.body.user_id);
-  const randomInterest = ['food', 'fashion', 'products', 'sports', 'travel', 'events', 'design', 'entertainment', 'DIY/crafts', 'photography'][Math.floor(Math.random() * 9)];
-  const randomRatio = Math.floor(Math.random() * (5) + 1);
-  // query cache/DB for user's optimal Ratio/interest
-  db.addUser(req.body.user_id, randomRatio, randomInterest, () => {
-    console.log('updated database!');
-  });
-  res.send('added to database!');
-});
+// app.post('/client', (req, res) => {
+//   console.log('response from post to /client: Success');
+//   console.log('Server has recieved userID: ', req.body.user_id);
+//   const randomInterest = ['food', 'fashion', 'products', 'sports', 'travel', 'events', 'design', 'entertainment', 'DIY/crafts', 'photography'][Math.floor(Math.random() * 9)];
+//   const randomRatio = Math.ceil(Math.random() * 5);
+//   db.addUser(req.body.user_id, randomRatio, randomInterest, () => {
+//     console.log('updated database!');
+//   });
+//   res.send('added to database!');
+// });
 
 //  This is where analytics will update a users ratio and top interest
 app.post('/analytics', (req, res) => {
@@ -43,10 +42,10 @@ app.post('/ads', (req, res) => {
   res.send('Some ads has been deactivated!');
 });
 
-app.post('/client1', (req, res) => {
+app.post('/clientgenerator', (req, res) => {
   db.findUser(req.body.user_id) 
     .then((result) => {
-      return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 250))
+      return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
     })
     .then((results) => {
       console.log('Here are the ' + results.length + ' ads requested: ', results);

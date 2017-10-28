@@ -6,10 +6,9 @@ to the server with a userID
 const db = require('../database-mysql');
 //const request = require('request');
 
-// const fakeUserGenerator = () => {
-//   const nums = [...Array(1000000).keys()];
-//   return { user_id: nums[Math.floor(Math.random() * 1000000)] };
-// };
+const fakeUserGenerator = () => {
+  return nums = Math.floor((Math.random() * 1000) + 1);
+};
 
 // setInterval(() => {
 //   const options = {
@@ -40,7 +39,7 @@ const populateDatabase = (n) => {
 };
 
 let i = 0;
-const howManyTimes = 1000; // Generates 1 million users to Database in about ~10 minutes
+const howManyTimes = 1000; // Generates 1 million users to Database in about ~6 minutes
 const f = () => {
   populateDatabase(i);
   i++;
@@ -49,3 +48,4 @@ const f = () => {
   }
 };
 f();
+

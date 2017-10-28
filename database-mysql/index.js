@@ -34,10 +34,36 @@ const addAdvertisement = (id, ad_group_id, ad_name, ad_description, ad_page_url,
     //if (err) console.log(err);
     //callback(results);
   });
+}; 
+
+const findUser = (user_id, callback) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT * from users where id = ${user_id}`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });  
+  });
+};
+
+const queryAds = (ratio, ad_group_id, callback) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT * from advertisements where ad_group_id = ${ad_group_id} limit ${ratio};`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
 };
 
 module.exports = {
   addUser,
   updateUser,
   addAdvertisement,
+  findUser,
+  queryAds,
 };

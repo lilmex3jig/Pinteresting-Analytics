@@ -2,7 +2,7 @@ const db = require('../database-mysql');
 
 const populateDatabase = (n) => {
   const userAmount = n * 1000;
-  for (var i = userAmount + 1; i < userAmount + 1000; i++) {
+  for (var i = userAmount + 1; i < userAmount + 1001; i++) {
     const randomInterest = ['food', 'fashion', 'products', 'sports', 'travel', 'events', 'design', 'entertainment', 'DIY/crafts', 'photography'][Math.floor(Math.random() * 10)];
     let randomRatio = Math.ceil(Math.random() * 5);
     console.log('added userid:' + i + ' randomRatio: ' + randomRatio + ' randomCategory: ' + randomInterest);

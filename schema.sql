@@ -15,10 +15,34 @@ CREATE TABLE advertisements (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE ad_groups (
+  id int NOT NULL,
+  name varchar (100) NOT NULL,
+  PRIMARY KEY (id)
+);
 
 CREATE TABLE users (
   id int NOT NULL,
   user_ratio int NOT NULL,
   user_interest varchar (200) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE active_ad_groups (
+  id int NOT NULL AUTO_INCREMENT,
+  ad_group_id int NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE retired_ad_groups (
+  id int NOT NULL AUTO_INCREMENT,
+  ad_group_id int NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE daily_retired_ad_groups (
+  id int NOT NULL AUTO_INCREMENT,
+  ad_group_id int NOT NULL,
+  release_time TIMESTAMP,
   PRIMARY KEY (id)
 );

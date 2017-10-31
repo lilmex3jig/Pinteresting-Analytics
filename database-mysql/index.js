@@ -30,11 +30,28 @@ const updateUser = (user_id, user_ratio, user_interest, callback) => {
 };
 
 const addAdvertisement = (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status, callback) => {
-  connection.query(`INSERT into advertisements (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status) VALUES (${id}, ${ad_group_id}, '${ad_name}', '${ad_description}', '${ad_page_url}', '${ad_img_url}', '${ad_status}')`, (err, results) => {
-    //if (err) console.log(err);
-    //callback(results);
+  return new Promise((resolve, reject) => {
+    connection.query(`INSERT into advertisements (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status) VALUES (${id}, ${ad_group_id}, '${ad_name}', '${ad_description}', '${ad_page_url}', '${ad_img_url}', '${ad_status}')`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
   });
 }; 
+
+const addAdGroups = (ad_group_id, callback) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`INSERT into active_ad_groups (ad_group_id) VALUES(${ad_group_id})`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
 
 const findUser = (user_id, callback) => {
   return new Promise((resolve, reject) => {
@@ -66,4 +83,5 @@ module.exports = {
   addAdvertisement,
   findUser,
   queryAds,
+  addAdGroups,
 };

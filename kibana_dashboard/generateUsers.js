@@ -2,15 +2,22 @@ const request = require('request');
 
 //Creating a script to load the elastic database with users
 
+const shuffle = (a) => {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
 const test = (i) => {
   let id = i;
   let ratio = Math.ceil(Math.random() * 5);
-  let randomInterest = ['food', 'fashion', 'products', 'sports', 'travel', 'events', 'design', 'entertainment', 'DIY/crafts', 'photography'][Math.floor(Math.random() * 10)];
-  
+  let randomInterest = shuffle(['food', 'fashion', 'products', 'sports', 'travel', 'events', 'design', 'entertainment', 'DIY/crafts', 'photography']);
   let result =  {
     'userID': `${id}`,
     'user_ratio': `${ratio}`,
-    'user_interest': `${randomInterest}`
+    'user_interest': `[${randomInterest[0]}, ${randomInterest[1]}, ${randomInterest[2]}]`
   };
 
   const options = {
@@ -29,7 +36,7 @@ const test = (i) => {
 
 
 let i = 1;
-const howManyTimes = 500000; 
+const howManyTimes = 100000; 
 const f = () => {
   test(i);
   i++;

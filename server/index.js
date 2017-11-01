@@ -30,6 +30,8 @@ app.post('/analytics', (req, res) => {
   res.send('Server has updated user ratios and interests');
 });
 
+app.get("/", (req, res) => res.json({message: "Connected to Server!"}));
+
 // This is where we add advertisments into the advertisements table
 app.get('/ads', (req, res) => {
   console.log('response from get to /ads');
@@ -56,7 +58,15 @@ app.post('/clientgenerator', (req, res) => {
     });
 });
 
+const runMe = () => {
+  return {user_id: 123, user_ratio: 4, user_category: 'food'};
+}
 
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });
+
+module.exports = {
+  app,
+  runMe
+};

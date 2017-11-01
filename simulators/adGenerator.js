@@ -29,6 +29,9 @@ const adGeneration = (n) => {
   }
 };
 
+//JavaScript heap out of memory at around 500000, should use promises to generate.
+//bulkCreate await try ? to make sure that the writes go in and the memory heap dosent go over
+
 let j = 0;
 const howManyTimes = 1000; // Generates 1 million users to Database in about ~10 minutes
 const f = () => {

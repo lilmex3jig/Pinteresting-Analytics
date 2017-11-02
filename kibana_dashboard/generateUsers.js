@@ -17,7 +17,7 @@ const test = (i) => {
   let result =  {
     'userID': `${id}`,
     'user_ratio': `${ratio}`,
-    'user_interest': `[${randomInterest[0]}, ${randomInterest[1]}, ${randomInterest[2]}]`
+    'user_interest': [`${randomInterest[0]}`, `${randomInterest[1]}`, `${randomInterest[2]}`]
   };
 
   const options = {

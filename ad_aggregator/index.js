@@ -1,10 +1,15 @@
-// const sqs = require('sqs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('../database-mysql');
 const Promise = require('bluebird');
+const AWS = require('aws-sdk');
+AWS.config.loadFromPath('./config.json');
+const cluster = require('cluster');
+const cpuCount = require('os').cpus().length;
 const app = express();
 const PORT = 3000;
+
+const config = require()
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -24,7 +29,8 @@ app.post('/clientgenerator', (req, res) => {
   //get the user ratio and top interests
   db.findUser(req.body.user_id) 
     .then((result) => {
-      //bid simulation here
+      //bid simulation here which is finding the ads that will be returned to client
+
       return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
     })
     .then((results) => {

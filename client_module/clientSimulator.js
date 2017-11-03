@@ -22,4 +22,4 @@ setInterval(() => {
     console.log(`Here are the ${res.body.length} ads coming back:`)
     console.log(res.body);
   });
-}, 1000);
+}, 250);

@@ -15,26 +15,55 @@ connection.connect((err) => {
   }
 });
 
-const addUser = (user_id, user_ratio, user_interest, callback) => { 
-  connection.query(`INSERT INTO users (id, user_ratio, user_interest) VALUES(${user_id}, ${user_ratio}, '${user_interest}')`, (err, results) => {
+const addUser = (user_id, user_ratio, user_interest1, user_interest2, user_interest3,callback) => { 
+  connection.query(`INSERT INTO users (id, user_ratio, user_interest1_id, user_interest2_id, user_interest3_id) VALUES(${user_id}, ${user_ratio}, '${user_interest1}', '${user_interest2}', '${user_interest3}')`, (err, results) => {
     if (err) console.log(err);
     callback(results);
   });
 };
 
-const updateUser = (user_id, user_ratio, user_interest, callback) => {
-  connection.query(`UPDATE users SET user_ratio= ${user_ratio}, user_interest= '${user_interest}' WHERE id=${user_id}`, (err, results) => {
+const updateUser = (user_id, user_ratio, user_interest1, user_interest2, user_interest3, callback) => {
+  connection.query(`UPDATE users SET user_ratio= ${user_ratio}, user_interest1_id= '${user_interest1}' ,user_interest2_id= '${user_interest2}', user_interest3_id= '${user_interest3}' WHERE id=${user_id}`, (err, results) => {
     if (err) console.log(err);
     callback(results);
   });
 };
 
 const addAdvertisement = (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status, callback) => {
-  connection.query(`INSERT into advertisements (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status) VALUES (${id}, ${ad_group_id}, '${ad_name}', '${ad_description}', '${ad_page_url}', '${ad_img_url}', '${ad_status}')`, (err, results) => {
-    //if (err) console.log(err);
-    //callback(results);
+  return new Promise((resolve, reject) => {
+    connection.query(`INSERT into advertisements (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status) VALUES (${id}, ${ad_group_id}, '${ad_name}', '${ad_description}', '${ad_page_url}', '${ad_img_url}', '${ad_status}')`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
   });
 }; 
+
+const addAdGroups = (adGroupId, cpm, daily_budget, balance, ad_interests, name, callback) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`INSERT into ad_groups (ad_group_id, cpm, daily_budget, balance, ad_interests, name) VALUES('${adGroupId}', '${cpm}', '${daily_budget}', '${balance}', '${ad_interests}', '${name}')`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const addActiveAdGroups = (id, callback) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`INSERT into active_ad_groups (ad_group_id) VALUES(${id})`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
 
 const findUser = (user_id, callback) => {
   return new Promise((resolve, reject) => {
@@ -66,4 +95,6 @@ module.exports = {
   addAdvertisement,
   findUser,
   queryAds,
+  addAdGroups,
+  addActiveAdGroups
 };

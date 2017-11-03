@@ -1,8 +1,8 @@
 const assert = require('chai').assert;
 const mocha = require('mocha');
-const app = require('../../server/index.js');
+const app = require('../../ad_aggregator/index.js');
 
-//tests are working
+//just to test that assert/chai/mocha are working correctly
 describe('Array', function() {
   describe('#indexOf()', function() {
     it('should return -1 when the value is not present', function() {

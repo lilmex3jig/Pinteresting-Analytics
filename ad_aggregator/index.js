@@ -19,12 +19,30 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //   res.send('added to database!');
 // });
 
+//Main router that takes in a userID and returns them the ads.
+app.post('/clientgenerator', (req, res) => {
+  //get the user ratio and top interests
+  db.findUser(req.body.user_id) 
+    .then((result) => {
+      //bid simulation here
+      return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
+    })
+    .then((results) => {
+      //return the ads to the client here
+      console.log('Here are the ' + results.length + ' ads requested: ', results);
+      res.send(results);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+});
+
+
 //  This is where analytics will update a users ratio and top interest
 app.post('/analytics', (req, res) => {
-  console.log('response from post to /analytics: Success');
   console.log('Server has recieved updates: ', req.body);
   // We would go to the database and update said user ratios and values here
-  db.updateUser(req.body.user_id, req.body.user_ratio, req.body.user_interest, () => {
+  db.updateUser(req.body.user_id, req.body.user_ratio, req.body.user_interest1, req.body.user_interest2, req.body.user_interest3, () => {
     console.log('users ratio and category has been updated');
   });
   res.send('Server has updated user ratios and interests');
@@ -42,20 +60,6 @@ app.get('/ads', (req, res) => {
 app.post('/ads', (req, res) => {
   console.log('deactivating ads');
   res.send('Some ads has been deactivated!');
-});
-
-app.post('/clientgenerator', (req, res) => {
-  db.findUser(req.body.user_id) 
-    .then((result) => {
-      return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
-    })
-    .then((results) => {
-      console.log('Here are the ' + results.length + ' ads requested: ', results);
-      res.send(results);
-    })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
 });
 
 const runMe = () => {

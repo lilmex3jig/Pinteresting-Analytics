@@ -16,7 +16,12 @@ CREATE TABLE advertisements (
 );
 
 CREATE TABLE ad_groups (
-  id int NOT NULL,
+  id int AUTO_INCREMENT,
+  ad_group_id int NOT NULL,
+  cpm DECIMAL(3, 2),
+  daily_budget DECIMAL (5, 2),
+  balance DECIMAL (5, 2) DEFAULT 0,
+  ad_interests int NOT NULL,
   name varchar (100) NOT NULL,
   PRIMARY KEY (id)
 );
@@ -24,7 +29,9 @@ CREATE TABLE ad_groups (
 CREATE TABLE users (
   id int NOT NULL,
   user_ratio int NOT NULL,
-  user_interest varchar (200) NOT NULL,
+  user_interest1_id INT NOT NULL,
+  user_interest2_id INT NOT NULL,
+  user_interest3_id INT NOT NULL,
   PRIMARY KEY (id)
 );
 

@@ -35,6 +35,6 @@ setInterval(() => {
     if (err) { console.log(err); }
     console.log(body);
   });
-}, 100);
+}, 1000);
 
 

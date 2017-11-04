@@ -36,7 +36,7 @@ app.post('/clientgenerator', (req, res) => {
 //  This is where analytics will update a users ratio and top interest
 app.post('/analytics', (req, res) => {
   console.log('Server has recieved updates: ', req.body);
-  // We would go to the database and update said user ratios and values here
+  //Poll from the analytics sqs queue and run the updateUser Database query
   db.updateUser(req.body.user_id, req.body.user_ratio, req.body.user_interest1, req.body.user_interest2, req.body.user_interest3, () => {
     console.log('users ratio and category has been updated');
   });

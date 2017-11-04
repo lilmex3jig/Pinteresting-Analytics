@@ -25,7 +25,7 @@ const addUser = (user_id, user_ratio, user_interest1, user_interest2, user_inter
 const updateUser = (user_id, user_ratio, user_interest1, user_interest2, user_interest3, callback) => {
   connection.query(`UPDATE users SET user_ratio= ${user_ratio}, user_interest1_id= '${user_interest1}' ,user_interest2_id= '${user_interest2}', user_interest3_id= '${user_interest3}' WHERE id=${user_id}`, (err, results) => {
     if (err) console.log(err);
-    callback(results);
+    // callback(results);
   });
 };
 

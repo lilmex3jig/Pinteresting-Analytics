@@ -1,0 +1,5 @@
+{
+    "analytics": "https://sqs.us-west-2.amazonaws.com/470758207750/analyticsOutput",
+    "advertisementsSend": "https://sqs.us-east-2.amazonaws.com/672431855135/ad_queries",
+    "advertisementsReceive": "https://sqs.us-east-2.amazonaws.com/672431855135/ad_responses"
+}

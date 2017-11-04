@@ -2,27 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('../database-mysql');
 const Promise = require('bluebird');
-const AWS = require('aws-sdk');
-AWS.config.loadFromPath('./config.json');
+// const AWS = require('aws-sdk');
+// AWS.config.loadFromPath('./config.json');
 const cluster = require('cluster');
 const cpuCount = require('os').cpus().length;
 const app = express();
 const PORT = 3000;
-
-const config = require()
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.post('/client', (req, res) => {
-//   console.log('response from post to /client: Success');
-//   console.log('Server has recieved userID: ', req.body.user_id);
-//   const randomInterest = ['food', 'fashion', 'products', 'sports', 'travel', 'events', 'design', 'entertainment', 'DIY/crafts', 'photography'][Math.floor(Math.random() * 9)];
-//   const randomRatio = Math.ceil(Math.random() * 5);
-//   db.addUser(req.body.user_id, randomRatio, randomInterest, () => {
-//     console.log('updated database!');
-//   });
-//   res.send('added to database!');
-// });
 
 //Main router that takes in a userID and returns them the ads.
 app.post('/clientgenerator', (req, res) => {
@@ -42,6 +30,7 @@ app.post('/clientgenerator', (req, res) => {
       res.status(500).send(err);
     });
 });
+
 
 
 //  This is where analytics will update a users ratio and top interest
@@ -77,6 +66,6 @@ app.listen(PORT, () => {
 });
 
 module.exports = {
-  app,
-  runMe
+  runMe,
+  app
 };

@@ -4,6 +4,7 @@ const db = require('../database-mysql');
 const Promise = require('bluebird');
 // const AWS = require('aws-sdk');
 // AWS.config.loadFromPath('./config.json');
+const sqsAnalytics = require('./sqs_analytics.js')
 const cluster = require('cluster');
 const cpuCount = require('os').cpus().length;
 const app = express();
@@ -15,14 +16,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //Main router that takes in a userID and returns them the ads.
 app.post('/clientgenerator', (req, res) => {
   //get the user ratio and top interests
+  //polls incoming sqs calls
   db.findUser(req.body.user_id) 
     .then((result) => {
       //bid simulation here which is finding the ads that will be returned to client
-
+      //sends information to advertisements
       return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
     })
     .then((results) => {
       //return the ads to the client here
+      //polls results from advertiesments and sends it back to client
       console.log('Here are the ' + results.length + ' ads requested: ', results);
       res.send(results);
     })
@@ -37,9 +40,11 @@ app.post('/clientgenerator', (req, res) => {
 app.post('/analytics', (req, res) => {
   console.log('Server has recieved updates: ', req.body);
   //Poll from the analytics sqs queue and run the updateUser Database query
-  db.updateUser(req.body.user_id, req.body.user_ratio, req.body.user_interest1, req.body.user_interest2, req.body.user_interest3, () => {
-    console.log('users ratio and category has been updated');
-  });
+  
+  // db.updateUser(req.body.user_id, req.body.user_ratio, req.body.user_interest1, req.body.user_interest2, req.body.user_interest3, () => {
+  //   console.log('users ratio and category has been updated');
+  // });
+  //sqsAnalytics.receiveMessageAnalytics(); //find out how to get this to work
   res.send('Server has updated user ratios and interests');
 });
 

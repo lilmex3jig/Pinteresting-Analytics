@@ -29,7 +29,8 @@ const receiveMessageAnalytics = () => {
     } else if (data.Messages) {
       console.log(data);
       let result = JSON.parse(data.Messages.body);
-      db.updateUser(result.user_id, result.ratio, result.interests[0], result.interests[1], results.interests[2]);
+      console.log('updating userID: ', result.user_id);
+      db.updateUser(result.user_id, result.numAds, result.interests[0], result.interests[1], results.interests[2]);
       const deleteParams = {
         QueueUrl: queueURL.receive,
         ReceiptHandle: data.Messages[0].ReceiptHandle,

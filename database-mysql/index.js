@@ -25,13 +25,13 @@ const addUser = (user_id, user_ratio, user_interest1, user_interest2, user_inter
 const updateUser = (user_id, user_ratio, user_interest1, user_interest2, user_interest3, callback) => {
   connection.query(`UPDATE users SET user_ratio= ${user_ratio}, user_interest1_id= '${user_interest1}' ,user_interest2_id= '${user_interest2}', user_interest3_id= '${user_interest3}' WHERE id=${user_id}`, (err, results) => {
     if (err) console.log(err);
-    callback(results);
+    // callback(results);
   });
 };
 
-const addAdvertisement = (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status, callback) => {
+const addAdvertisement = (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, cpm, daily_budget, balance, ad_interest, ad_status, callback) => {
   return new Promise((resolve, reject) => {
-    connection.query(`INSERT into advertisements (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, ad_status) VALUES (${id}, ${ad_group_id}, '${ad_name}', '${ad_description}', '${ad_page_url}', '${ad_img_url}', '${ad_status}')`, (err, result) => {
+    connection.query(`INSERT into advertisements (id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, cpm, daily_budget, balance, ad_interest, ad_status) VALUES (${id}, ${ad_group_id}, '${ad_name}', '${ad_description}', '${ad_page_url}', '${ad_img_url}', '${cpm}', '${daily_budget}', '${balance}', '${ad_interest}', '${ad_status}')`, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -89,6 +89,30 @@ const queryAds = (ratio, ad_group_id, callback) => {
   });
 };
 
+const queryAdsInt = (ratio, ad_interest, callback) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT * from advertisements where ad_interest = ${ad_interest} and ad_status = 'active' and balance < daily_budget order by cpm DESC limit ${ratio};`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const retireAd = (ad_group_id, callback) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`UPDATE advertisements SET ad_status = 'retired' WHERE ad_group_id = ${ad_group_id}`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
 module.exports = {
   addUser,
   updateUser,
@@ -96,5 +120,7 @@ module.exports = {
   findUser,
   queryAds,
   addAdGroups,
-  addActiveAdGroups
+  addActiveAdGroups,
+  queryAdsInt,
+  retireAd
 };

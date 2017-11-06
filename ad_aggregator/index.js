@@ -1,34 +1,31 @@
-// const sqs = require('sqs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('../database-mysql');
 const Promise = require('bluebird');
+// const AWS = require('aws-sdk');
+// AWS.config.loadFromPath('./config.json');
+//const sqsAnalytics = require('./sqs_analytics.js')
+const cluster = require('cluster');
+const cpuCount = require('os').cpus().length;
 const app = express();
 const PORT = 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.post('/client', (req, res) => {
-//   console.log('response from post to /client: Success');
-//   console.log('Server has recieved userID: ', req.body.user_id);
-//   const randomInterest = ['food', 'fashion', 'products', 'sports', 'travel', 'events', 'design', 'entertainment', 'DIY/crafts', 'photography'][Math.floor(Math.random() * 9)];
-//   const randomRatio = Math.ceil(Math.random() * 5);
-//   db.addUser(req.body.user_id, randomRatio, randomInterest, () => {
-//     console.log('updated database!');
-//   });
-//   res.send('added to database!');
-// });
 
 //Main router that takes in a userID and returns them the ads.
 app.post('/clientgenerator', (req, res) => {
   //get the user ratio and top interests
+  //polls incoming sqs calls
   db.findUser(req.body.user_id) 
     .then((result) => {
-      //bid simulation here
+      //bid simulation here which is finding the ads that will be returned to client
+      //sends information to advertisements
       return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
     })
     .then((results) => {
       //return the ads to the client here
+      //polls results from advertiesments and sends it back to client
       console.log('Here are the ' + results.length + ' ads requested: ', results);
       res.send(results);
     })
@@ -38,21 +35,29 @@ app.post('/clientgenerator', (req, res) => {
 });
 
 
+
 //  This is where analytics will update a users ratio and top interest
 app.post('/analytics', (req, res) => {
   console.log('Server has recieved updates: ', req.body);
-  // We would go to the database and update said user ratios and values here
-  db.updateUser(req.body.user_id, req.body.user_ratio, req.body.user_interest1, req.body.user_interest2, req.body.user_interest3, () => {
-    console.log('users ratio and category has been updated');
-  });
+  //Poll from the analytics sqs queue and run the updateUser Database query
+  
+  // db.updateUser(req.body.user_id, req.body.user_ratio, req.body.user_interest1, req.body.user_interest2, req.body.user_interest3, () => {
+  //   console.log('users ratio and category has been updated');
+  // });
+  //sqsAnalytics.receiveMessageAnalytics(); //find out how to get this to work
+  //This part should be running in a setInterval where it will poll from the queue every so minutes
+  //and will be updating the database based off that
   res.send('Server has updated user ratios and interests');
 });
 
 app.get("/", (req, res) => res.json({message: "Connected to Server!"}));
 
 // This is where we add advertisments into the advertisements table
-app.get('/ads', (req, res) => {
-  console.log('response from get to /ads');
+app.post('/ads', (req, res) => {
+  //here is where we add ad's to the advertisements table
+  //we will update the database with the new ads here
+  //as well as any changes to the status of the specific ads
+
   res.send('Server responds back');
 });
 
@@ -71,6 +76,6 @@ app.listen(PORT, () => {
 });
 
 module.exports = {
-  app,
-  runMe
+  runMe,
+  app
 };

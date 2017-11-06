@@ -27,18 +27,17 @@ const adGeneration = (n) => {
   const adAmount = n * 500;
   for (var i = adAmount; i < adAmount + 500; i++) {    
     let id = i + 1;
-    let rand_ad_group_id = Math.ceil(Math.random() * 100000);
+    let rand_ad_group_id = Math.ceil(Math.random() * 10000);
     let name = NAME[Math.floor(Math.random() * 69)]
     let rand_ad_url = name + '.com/product/';
     let rand_img_url = rand_ad_url + 'image.jpeg';
     let ad_status = 'active';
-    //Ad group information
-    let adGroupId = Math.ceil(Math.random() * 100000); // start with 100000 ad groups
+    let adGroupId = Math.ceil(Math.random() * 10000); // start with 10000 ad groups
     let cpm = (Math.random() * 9.9).toFixed(2); //max bid will be 10
     let daily_budget = Math.ceil(Math.random() * 100) + 10; //limit daily budget to 100 first
     let balance = 0; 
     let ad_interest = Math.ceil(Math.random() * 10);
-    db.addAdvertisement(id, rand_ad_group_id, name, DESC[Math.floor(Math.random() * 11)], rand_ad_url, rand_img_url, ad_status)
+    db.addAdvertisement(id, rand_ad_group_id, name, DESC[Math.floor(Math.random() * 11)], rand_ad_url, rand_img_url, cpm, daily_budget, balance, ad_interest, ad_status)
       .then(() => {
         //populate active_ad_groups as well.
         db.addActiveAdGroups(id);
@@ -48,11 +47,8 @@ const adGeneration = (n) => {
   }
 };
 
-//JavaScript heap out of memory at around 500000, should use promises to generate.
-//bulkCreate await try ? to make sure that the writes go in and the memory heap dosent go over
-
-let j = 500;
-const howManyTimes = 2000; // Generates 1 million users to Database in about ~10 minutes
+let j = 1;
+const howManyTimes = 500; // Generates 1 million users to Database in about ~10 minutes
 const f = () => {
   adGeneration(j);
   j++;

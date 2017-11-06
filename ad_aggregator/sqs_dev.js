@@ -1,15 +1,36 @@
+const express = require('express');
+const AWS = require('aws-sdk');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
-const AWS = require('aws-sdk');
-AWS.config.loadFromPath('../config.json');
+
+AWS.config.loadFromPath('./configDev.json');
+
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
-const db = require('../database-mysql');
 
 const queueURL = {
-  receive: 'https://sqs.us-west-1.amazonaws.com/854541618844/analytics_aggregator'
+  send: 'https://sqs.us-west-1.amazonaws.com/854541618844/ad_queries',
+  receive: 'https://sqs.us-west-1.amazonaws.com/854541618844/ad_responses',
 };
 
-const receiveMessageAnalytics = () => {
+const sendMessage = (amount, ad_categories) => {
+  const params = {
+    MessageBody: JSON.stringify({
+      'amount' : amount,
+      'ads' : ad_categories
+    }),
+    QueueUrl: queueURL.send,
+  };
+
+  sqs.sendMessage(params, (err, data) => {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      console.log("Success", data.MessageId);
+    }
+  });
+};
+
+const receiveMessage = () => {
   const params = {
     AttributeNames: [
       'SentTimestamp',
@@ -23,14 +44,12 @@ const receiveMessageAnalytics = () => {
     WaitTimeSeconds: 5,
   };
 
-  const consumeAnalytics = sqs.receiveMessage(params, (err, data) => {
+  sqs.receiveMessage(params, (err, data) => {
     if (err) {
       // console.log("Receive Error", err);
     } else if (data.Messages) {
-      console.log('this is data.Messages.Body', data.Messages[0].Body);
-      let result = JSON.parse(data.Messages[0].Body);
-      console.log('updating userID: ', result.userId);
-      db.updateUser(result.userId, result.numAds, result.interests[0], result.interests[1], result.interests[2]);
+      console.log(data);
+
       const deleteParams = {
         QueueUrl: queueURL.receive,
         ReceiptHandle: data.Messages[0].ReceiptHandle,
@@ -48,14 +67,22 @@ const receiveMessageAnalytics = () => {
 
 if (cluster.isMaster) {
   console.log(`Master ${process.pid} is running`);
+
   for (let i = 0; i < numCPUs; i += 1) {
     cluster.fork();
   }
 } else {
-  setInterval(receiveMessageAnalytics, 5000); 
+  setInterval(receiveMessage, 5000);
+
+  const app = express();
+
+  app.get('/ads', (req, res) => {
+    sendMessage(4, [2, 6, 4, 10]);
+    res.send('SQS Message Sent to Advertisements Queue');
+  });
+
+
+  app.listen(5000);
+
   console.log(`Worker ${process.pid} started`);
 }
-
-module.exports = {
-  receiveMessageAnalytics
-};

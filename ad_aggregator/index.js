@@ -4,7 +4,7 @@ const db = require('../database-mysql');
 const Promise = require('bluebird');
 // const AWS = require('aws-sdk');
 // AWS.config.loadFromPath('./config.json');
-const sqsAnalytics = require('./sqs_analytics.js')
+//const sqsAnalytics = require('./sqs_analytics.js')
 const cluster = require('cluster');
 const cpuCount = require('os').cpus().length;
 const app = express();
@@ -45,14 +45,19 @@ app.post('/analytics', (req, res) => {
   //   console.log('users ratio and category has been updated');
   // });
   //sqsAnalytics.receiveMessageAnalytics(); //find out how to get this to work
+  //This part should be running in a setInterval where it will poll from the queue every so minutes
+  //and will be updating the database based off that
   res.send('Server has updated user ratios and interests');
 });
 
 app.get("/", (req, res) => res.json({message: "Connected to Server!"}));
 
 // This is where we add advertisments into the advertisements table
-app.get('/ads', (req, res) => {
-  console.log('response from get to /ads');
+app.post('/ads', (req, res) => {
+  //here is where we add ad's to the advertisements table
+  //we will update the database with the new ads here
+  //as well as any changes to the status of the specific ads
+
   res.send('Server responds back');
 });
 

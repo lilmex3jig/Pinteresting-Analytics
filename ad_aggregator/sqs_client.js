@@ -23,7 +23,7 @@ const sendMessage = (ads) => {
     if (err) {
       console.log("Error", err);
     } else {
-      console.log('Client back ads to client!');
+      console.log('Aggregator sent back ads to client!');
       console.log("Success", data.MessageId);
     }
   });
@@ -71,17 +71,20 @@ const receiveMessage = () => {
       let result = JSON.parse(data.Messages[0].Body);
       db.findUser(result.userId)
         .then((userInfo) => {
-          console.log(userInfo[0]);
-          console.log(userInfo[0].user_interest1_id)
-          console.log(`Ratio wanted: ${userInfo[0].user_ratio}, Adinterest: ${userInfo[0].user_interest1_id}`)
+          console.log(`UserId:${result.userId}, Ratio wanted: ${userInfo[0].user_ratio}, Adinterest: [${userInfo[0].user_interest1_id}, ${userInfo[0].user_interest2_id}, ${userInfo[0].user_interest3_id}]`)
           return db.queryAdsInt(userInfo[0].user_ratio, userInfo[0].user_interest1_id)
         })
         .then((ads) => {
-          console.log(ads);
+          console.log(`UserId:${result.userId}, will be receiving these ads: `, ads);
           //send message to client SQS HERE, should work!
           //needs formatting
           sendMessage(ads);
           
+        })
+        .then(() => {
+          console.log('COMPLETE')
+          // update the balance for ad_group
+          //if balance > ad_group_budget  RETIRE
         });
 
 
@@ -107,7 +110,7 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 } else {
-  setInterval(receiveMessage, 2000);
+  setInterval(receiveMessage, 1000);
   console.log(`There are ${numCPUs} threads avavilable`);  
   const app = express();
 

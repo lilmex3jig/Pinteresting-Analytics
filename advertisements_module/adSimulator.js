@@ -15,10 +15,10 @@ const shuffle = (a) => {
 let i = 1;
 
 const simulateResponse = () => {
-  let amount = Math.ceil(Math.random() * 5);
+  let amount = Math.ceil(Math.random() * 8);
   return {
     "amount": amount,
-    "categories": shuffle([1, 1, 4, 7, 6]).slice(0, amount)
+    "categories": shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, amount)
   };
 };
 
@@ -34,7 +34,7 @@ const sendMessage = () => {
       console.log("Error", err);
     } else {
       console.log("Success", data.MessageId);
-      console.log('Sent: ', params.MessageBody)
+      console.log('Sent: ', params.MessageBody);
     }
   });
 };

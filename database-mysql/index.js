@@ -91,7 +91,19 @@ const queryAds = (ratio, ad_group_id, callback) => {
 
 const queryAdsInt = (ratio, ad_interest, callback) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT * from advertisements where ad_interest = ${ad_interest} limit ${ratio};`, (err, result) => {
+    connection.query(`SELECT * from advertisements where ad_interest = ${ad_interest} and ad_status = 'active' and balance < daily_budget order by cpm DESC limit ${ratio};`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const retireAd = (ad_group_id, callback) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`UPDATE advertisements SET ad_status = 'retired' WHERE ad_group_id = ${ad_group_id}`, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -109,5 +121,6 @@ module.exports = {
   queryAds,
   addAdGroups,
   addActiveAdGroups,
-  queryAdsInt
+  queryAdsInt,
+  retireAd
 };

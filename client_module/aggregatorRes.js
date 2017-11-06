@@ -50,4 +50,5 @@ const sendMessage = (i) => {
   });
 };
   
-setInterval(()=> {sendMessage(i); i++; }, 5);
+// sends a 10 messages a second to the clients response queue
+setInterval(()=> {sendMessage(i); i++; }, 100);

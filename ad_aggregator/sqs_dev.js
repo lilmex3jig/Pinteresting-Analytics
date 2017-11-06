@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
-AWS.config.loadFromPath('./configDev.json');
+AWS.config.loadFromPath('../configDev.json');
 
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
 

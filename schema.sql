@@ -11,6 +11,10 @@ CREATE TABLE advertisements (
   ad_description varchar(250) NOT NULL,
   ad_page_url varchar(250) NOT NULL,
   ad_img_url varchar(250) NOT NULL,
+  cpm DECIMAL(3, 2),
+  daily_budget DECIMAL (5, 2),
+  balance DECIMAL (5, 2) DEFAULT 0,
+  ad_interest int NOT NULL,
   ad_status varchar(40) NOT NULL,
   PRIMARY KEY (id)
 );

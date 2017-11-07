@@ -21,10 +21,10 @@ const sendMessage = (ads) => {
 
   sqs.sendMessage(params, (err, data) => {
     if (err) {
-      console.log("Error", err);
+      console.log('Error', err);
     } else {
       console.log('Aggregator sent back ads to client!');
-      console.log("Success", data.MessageId);
+      console.log('Success', data.MessageId);
     }
   });
 };
@@ -45,29 +45,9 @@ const receiveMessage = () => {
 
   sqs.receiveMessage(params, (err, data) => {
     if (err) {
-      console.log("Received Error", err);
+      console.log('Received Error', err);
     } else if (data.Messages) {
-/*
-  db.findUser(req.body.user_id) 
-    .then((result) => {
-      //bid simulation here which is finding the ads that will be returned to client
-      //sends information to advertisements
-      return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
-    })
-    .then((results) => {
-      //return the ads to the client here
-      //polls results from advertiesments and sends it back to client
-      console.log('Here are the ' + results.length + ' ads requested: ', results);
-      res.send(results);
-    })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
-*/
 
-    //if we receive a userId...
-
-    //we want to query the database to get the ratio and top ads
       let result = JSON.parse(data.Messages[0].Body);
       db.findUser(result.userId)
         .then((userInfo) => {
@@ -78,15 +58,24 @@ const receiveMessage = () => {
           console.log(`UserId:${result.userId}, will be receiving these ads: `, ads);
           //send message to client SQS HERE, should work!
           //needs formatting
-          sendMessage(ads);
-          
+          let userJD = [9875, 9876, 9877][Math.floor(Math.random() * 3)];
+          //this is for jordans client component to test with these specific users
+          sendMessage({
+            id: userJD,
+            ads: ads
+          });
+          return ads;
         })
-        .then(() => {
-          console.log('COMPLETE')
+        .then((ads) => {
+          console.log('COMPLETE');
+          ads.forEach((ad) => {
+            console.log('Ad group id that needs balance to increase: ', ad.ad_group_id);
+          })
           // update the balance for ad_group
+          // we know the ad_group_ids and we need to increase their balance by cpm
+          
           //if balance > ad_group_budget  RETIRE
         });
-
 
       const deleteParams = {
         QueueUrl: queueURL.request,
@@ -94,9 +83,9 @@ const receiveMessage = () => {
       };
       sqs.deleteMessage(deleteParams, (err, data) => {
         if (err) {
-          console.log("Delete Error", err);
+          console.log('Delete Error', err);
         } else {
-          console.log("Message Deleted", data);
+          console.log('Message Deleted', data);
         }
       });
     }
@@ -110,7 +99,7 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 } else {
-  setInterval(receiveMessage, 1000);
+  setInterval(receiveMessage, 5000);
   console.log(`There are ${numCPUs} threads avavilable`);  
   const app = express();
 

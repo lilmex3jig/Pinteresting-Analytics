@@ -25,7 +25,7 @@ const receiveMessageAnalytics = () => {
 
   const consumeAnalytics = sqs.receiveMessage(params, (err, data) => {
     if (err) {
-      // console.log("Receive Error", err);
+      console.log('Receive Error', err);
     } else if (data.Messages) {
       console.log('this is data.Messages.Body', data.Messages[0].Body);
       let result = JSON.parse(data.Messages[0].Body);
@@ -37,9 +37,9 @@ const receiveMessageAnalytics = () => {
       };
       sqs.deleteMessage(deleteParams, (err, data) => {
         if (err) {
-          console.log("Delete Error", err);
+          console.log('Delete Error', err);
         } else {
-          console.log("Message Deleted", data);
+          console.log('Message Deleted', data);
         }
       });
     }
@@ -52,7 +52,7 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 } else {
-  setInterval(receiveMessageAnalytics, 1000); 
+  setInterval(receiveMessageAnalytics, 3000); 
   console.log(`Worker ${process.pid} started`);
 }
 

@@ -11,9 +11,8 @@ const shuffle = (a) => {
 const populateDatabase = (n) => {
   const userAmount = n * 1000;
   for (var i = userAmount + 1; i < userAmount + 1001; i++) {
-    //const randomInterest = ['food', 'fashion', 'products', 'sports', 'travel', 'events', 'design', 'entertainment', 'DIY/crafts', 'photography'][Math.floor(Math.random() * 10)];
     const interestid = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    let randomRatio = Math.ceil(Math.random() * 5);
+    let randomRatio = Math.ceil(Math.random() * 8);
     console.log('added userid:' + i + ' randomRatio: ' + randomRatio + ' int1id: ' + interestid[0] + ', int2id: ' + interestid[1] + ', int3id: ' + interestid[2]);
     db.addUser(i, randomRatio, interestid[0], interestid[1], interestid[2], () => {
       console.log('db updated!');

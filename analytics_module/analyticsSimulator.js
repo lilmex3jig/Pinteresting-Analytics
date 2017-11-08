@@ -13,7 +13,7 @@ const shuffle = (a) => {
 
 //for a million users we will update 10 users ratio's and top 3 interests per second via http calls to the analytics route
 const userRatioInterestUpdateGenerator = () => {
-  const nums = Math.floor(Math.random() * 10000);
+  const nums = Math.ceil(Math.random() * 100000);
   const interest = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   const ratio = Math.ceil(Math.random() * 8);
   return { 
@@ -32,17 +32,17 @@ const sendMessage = () => {
 
   sqs.sendMessage(params, (err, data) => {
     if (err) {
-      console.log("Error", err);
+      console.log('Error', err);
     } else {
       console.log('Updating: ', params.MessageBody);
-      console.log("Success", data.MessageId);
+      console.log('Success', data.MessageId);
     }
   });
 };
 
 
-//Analytics will send this 10 messages a second
-setInterval(sendMessage, 100);
+//Analytics will send this 1 messages a second
+setInterval(sendMessage, 1000);
 
 // Old code to be sent to the server API, reformatted to use SQS
 // setInterval(() => {

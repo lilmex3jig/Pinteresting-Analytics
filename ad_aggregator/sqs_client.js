@@ -4,6 +4,7 @@ const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 const db = require('../database-mysql');
 const Promise = require('bluebird');
+const helper = require('./helper.js');
 AWS.config.loadFromPath('../config.json');
 
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
@@ -51,31 +52,36 @@ const receiveMessage = () => {
       let result = JSON.parse(data.Messages[0].Body);
       db.findUser(result.userId)
         .then((userInfo) => {
-          console.log(`UserId:${result.userId}, Ratio wanted: ${userInfo[0].user_ratio}, Adinterest: [${userInfo[0].user_interest1_id}, ${userInfo[0].user_interest2_id}, ${userInfo[0].user_interest3_id}]`)
-          return db.queryAdsInt(userInfo[0].user_ratio, userInfo[0].user_interest1_id)
+          console.log(`UserId:${result.userId}, Ratio wanted: ${userInfo[0].ratio}, Adinterest: [${userInfo[0].interest1}, ${userInfo[0].interest2}, ${userInfo[0].interest3}]`)
+          //old query for just the top ad interest
+          return db.queryAdsInt(userInfo[0].ratio, userInfo[0].interest1)
+          //let newQuery = helper.weightedResult(userInfo[0].ratio, [userInfo[0].interest1, userInfo[0].interest2, userInfo[0].interest3])
+          //new query needs to return a dynamic list of ads representing all ads
+          //console.log(newQuery);
+          //let adsToClient = [];
         })
         .then((ads) => {
           console.log(`UserId:${result.userId}, will be receiving these ads: `, ads);
           //send message to client SQS HERE, should work!
           //needs formatting
-          let userJD = [9875, 9876, 9877][Math.floor(Math.random() * 3)];
+          //let userJD = [9875, 9876, 9877][Math.floor(Math.random() * 3)];
           //this is for jordans client component to test with these specific users
           sendMessage({
-            id: userJD,
+            id: result.userID,
             ads: ads
           });
           return ads;
         })
-        .then((ads) => {
-          console.log('COMPLETE');
-          ads.forEach((ad) => {
-            console.log('Ad group id that needs balance to increase: ', ad.ad_group_id);
-          })
+        // .then((ads) => {
+        //   console.log('COMPLETE');
+        //   ads.forEach((ad) => {
+        //     console.log('Ad group id that needs balance to increase: ', ad.ad_group_id);
+        //   })
           // update the balance for ad_group
           // we know the ad_group_ids and we need to increase their balance by cpm
           
           //if balance > ad_group_budget  RETIRE
-        });
+        // });
 
       const deleteParams = {
         QueueUrl: queueURL.request,

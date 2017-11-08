@@ -2,8 +2,10 @@ const express = require('express');
 const AWS = require('aws-sdk');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
+const helper = require('./helper.js');
+const db = require('../database-mysql');
 
-AWS.config.loadFromPath('../configDev.json');
+AWS.config.loadFromPath('../config.json');
 
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
 
@@ -13,19 +15,17 @@ const queueURL = {
 };
 
 const sendMessage = (amount, ad_categories) => {
+  let query = helper.weightedResult(amount, ad_categories);
   const params = {
-    MessageBody: JSON.stringify({
-      'amount' : amount,
-      'ads' : ad_categories
-    }),
+    MessageBody: JSON.stringify(query),
     QueueUrl: queueURL.send,
   };
 
   sqs.sendMessage(params, (err, data) => {
     if (err) {
-      console.log("Error", err);
+      console.log('Error', err);
     } else {
-      console.log("Success", data.MessageId);
+      console.log('Success', data.MessageId);
     }
   });
 };
@@ -48,17 +48,33 @@ const receiveMessage = () => {
     if (err) {
       // console.log("Receive Error", err);
     } else if (data.Messages) {
-      console.log(data);
 
+      let results = JSON.parse(data.Messages[0].Body)
+      results.forEach((result) => {
+        let adId = result.ad_id;
+        let adGroupId = result.ad_group_id;
+        let name = result.ad_name;
+        let desc = result.ad_description;
+        let url = result.ad_page_url;
+        let img_url = result.ad_img_url;
+        let cpm = result.cpm;
+        let cpc = result.cpc;
+        let budget = result.daily_budget;
+        let balance = result.daily_balance;
+        let main = result.main_interest_id;
+        let utc = result.utc_offset;
+        let active = result.active;
+        db.addAdvertisement2(adId, adGroupId, name, desc, url, img_url, cpm, cpc, budget, balance, main, utc, active);
+      });
       const deleteParams = {
         QueueUrl: queueURL.receive,
         ReceiptHandle: data.Messages[0].ReceiptHandle,
       };
       sqs.deleteMessage(deleteParams, (err, data) => {
         if (err) {
-          console.log("Delete Error", err);
+          console.log('Delete Error', err);
         } else {
-          console.log("Message Deleted", data);
+          console.log('Message Deleted', data);
         }
       });
     }
@@ -72,12 +88,12 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 } else {
-  setInterval(receiveMessage, 5000);
+  setInterval(receiveMessage, 4000);
 
   const app = express();
-
+  //sends a sqs message to the queue via a call to /ads route
   app.get('/ads', (req, res) => {
-    sendMessage(4, [2, 6, 4, 10]);
+    sendMessage(200, [3, 2, 3]);
     res.send('SQS Message Sent to Advertisements Queue');
   });
 

@@ -36,21 +36,10 @@ const updateUser = (user_id, ratio, interest1, interest2, interest3, callback) =
   });
 };
 
-const addAdvertisement = (ad_id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, cpm, cpc, daily_budget, daily_balance, main_interest_id, utc_offset, active, callback) => {
-  return new Promise((resolve, reject) => {
-    connection.query(`INSERT into advertisements (ad_id, ad_group_id, ad_name, ad_description, ad_page_url, ad_img_url, cpm, cpc, daily_budget, daily_balance, main_interest_id, utc_offset, active) VALUES (${ad_id}, ${ad_group_id}, "${ad_name}", "${ad_description}", "${ad_page_url}", "${ad_img_url}", ${cpm}, ${cpc}, ${daily_budget}, ${daily_balance}, ${main_interest_id}, ${utc_offset}, ${active})`, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-}; 
 
-const addAdvertisement2 = (ad_id, ad_group_id, ad_name, desc, ad_page_url, ad_img_url, cpm, cpc, daily_budget, daily_balance, main_interest_id, utc_offset, active, callback) => {
+const addAdvertisement = (ad_id, ad_group_id, ad_name, desc, ad_page_url, ad_img_url, cpm, cpc, daily_budget, daily_balance, main_interest_id, utc_offset, active, callback) => {
   return new Promise((resolve, reject) => {
-    connection.query(`INSERT into advertisements2 (ad_description, ad_id, ad_group_id, ad_name, ad_page_url, ad_img_url, cpm, cpc, daily_budget, daily_balance, main_interest_id, utc_offset, active) VALUES ("${desc}", ${ad_id}, ${ad_group_id}, "${ad_name}", "${ad_page_url}", "${ad_img_url}", ${cpm}, ${cpc}, ${daily_budget}, ${daily_balance}, ${main_interest_id}, ${utc_offset}, ${active})`, (err, result) => {
+    connection.query(`INSERT into advertisements (ad_description, ad_id, ad_group_id, ad_name, ad_page_url, ad_img_url, cpm, cpc, daily_budget, daily_balance, main_interest_id, utc_offset, active) VALUES ("${desc}", ${ad_id}, ${ad_group_id}, "${ad_name}", "${ad_page_url}", "${ad_img_url}", ${cpm}, ${cpc}, ${daily_budget}, ${daily_balance}, ${main_interest_id}, ${utc_offset}, ${active})`, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -120,7 +109,6 @@ module.exports = {
   addUser,
   updateUser,
   addAdvertisement,
-  addAdvertisement2,
   findUser,
   queryAdsInt,
   retireAd,

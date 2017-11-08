@@ -11,22 +11,24 @@ const shuffle = (a) => {
   return a;
 };
 
+let i = 1;
 //for a million users we will update 10 users ratio's and top 3 interests per second via http calls to the analytics route
-const userRatioInterestUpdateGenerator = () => {
-  const nums = Math.ceil(Math.random() * 100000);
+const userRatioInterestUpdateGenerator = (i) => {
+  //const nums = Math.ceil(Math.random() * 100000);
+  //const nums = i;
   const interest = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   const ratio = Math.ceil(Math.random() * 8);
   return { 
-    userId: nums, 
+    userId: i, 
     interests: [interest[0], interest[1], interest[2]],
     numAds: ratio, 
   };
 };
 
 //Send via SQS to the queue from analytics to aggregator who will poll form queue
-const sendMessage = () => {
+const sendMessage = (i) => {
   const params = {
-    MessageBody: JSON.stringify(userRatioInterestUpdateGenerator()),
+    MessageBody: JSON.stringify(userRatioInterestUpdateGenerator(i)),
     QueueUrl: 'https://sqs.us-west-1.amazonaws.com/854541618844/analytics_aggregator',
   };
 
@@ -42,7 +44,8 @@ const sendMessage = () => {
 
 
 //Analytics will send this 1 messages a second
-setInterval(sendMessage, 1000);
+// setInterval(sendMessage, 1000);
+setInterval(()=> { sendMessage(i); i++; }, 1000);
 
 // Old code to be sent to the server API, reformatted to use SQS
 // setInterval(() => {

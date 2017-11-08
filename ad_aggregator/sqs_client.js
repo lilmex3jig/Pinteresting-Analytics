@@ -54,21 +54,37 @@ const receiveMessage = () => {
         .then((userInfo) => {
           console.log(`UserId:${result.userId}, Ratio wanted: ${userInfo[0].ratio}, Adinterest: [${userInfo[0].interest1}, ${userInfo[0].interest2}, ${userInfo[0].interest3}]`)
           //old query for just the top ad interest
-          return db.queryAdsInt(userInfo[0].ratio, userInfo[0].interest1)
-          //let newQuery = helper.weightedResult(userInfo[0].ratio, [userInfo[0].interest1, userInfo[0].interest2, userInfo[0].interest3])
-          //new query needs to return a dynamic list of ads representing all ads
-          //console.log(newQuery);
-          //let adsToClient = [];
+          let newQuery = helper.weightedResult(userInfo[0].ratio, [userInfo[0].interest1, userInfo[0].interest2, userInfo[0].interest3])
+          let adsForClient = [];
+          console.log(newQuery);
+
+          //will seperate the top 3 interest into 3 queries to DB
+          // Promise.all()
+          let queryPromises = Object.entries(newQuery).map((el) => {
+            return db.queryAdsInt(el[1], el[0]);
+          });
+          
+          return Promise.all(queryPromises)
+          // newQu
+          // }
+
+          // //return db.queryAdsInt(userInfo[0].ratio, userInfo[0].interest1);
+          // return adsForClient;
         })
         .then((ads) => {
-          console.log(`UserId:${result.userId}, will be receiving these ads: `, ads);
+          let finalResult = [];
+          for (let i = 0; i < ads.length; i++) {
+            finalResult = finalResult.concat(ads[i]);
+          }
+          console.log(`UserId:${result.userId}, will be receiving these ads: `, finalResult);
+  
           //send message to client SQS HERE, should work!
           //needs formatting
           //let userJD = [9875, 9876, 9877][Math.floor(Math.random() * 3)];
           //this is for jordans client component to test with these specific users
           sendMessage({
-            id: result.userID,
-            ads: ads
+            userId: result.userId,
+            ads: finalResult
           });
           return ads;
         })
@@ -109,7 +125,7 @@ if (cluster.isMaster) {
   console.log(`There are ${numCPUs} threads avavilable`);  
   const app = express();
 
-  app.listen(5000);
+  app.listen(5001);
 
   console.log(`Worker ${process.pid} started`);
 }

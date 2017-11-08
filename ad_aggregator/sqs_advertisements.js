@@ -64,7 +64,7 @@ const receiveMessage = () => {
         let main = result.main_interest_id;
         let utc = result.utc_offset;
         let active = result.active;
-        db.addAdvertisement2(adId, adGroupId, name, desc, url, img_url, cpm, cpc, budget, balance, main, utc, active);
+        db.addAdvertisement(adId, adGroupId, name, desc, url, img_url, cpm, cpc, budget, balance, main, utc, active);
       });
       const deleteParams = {
         QueueUrl: queueURL.receive,
@@ -93,12 +93,15 @@ if (cluster.isMaster) {
   const app = express();
   //sends a sqs message to the queue via a call to /ads route
   app.get('/ads', (req, res) => {
-    sendMessage(200, [3, 2, 3]);
+    // for (var i = 4; i < 10; i ++) {
+    //   sendMessage(200, [i, 2, 3]);
+    // }
+    sendMessage(200, [10, 2, 3])
     res.send('SQS Message Sent to Advertisements Queue');
   });
 
 
-  app.listen(5000);
+  app.listen(5002);
 
   console.log(`Worker ${process.pid} started`);
 }

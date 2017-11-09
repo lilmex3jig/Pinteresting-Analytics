@@ -13,7 +13,8 @@ const weightedResult = function(ratio, interests) {
   if (ratio === 7) { result[int1] = 4; result[int2] = 2; result[int3] = 1; }
   if (ratio === 8) { result[int1] = 4; result[int2] = 2; result[int3] = 2; }
   //if ratio is above the max 8, we are looking to populate the database with active ads during the initialization phase
-  if (ratio > 8) { result[int1] = ratio; }
+  if (ratio === 9 ) { result[int1] = 5; }
+  if (ratio > 10) { result[int1] = ratio; }
   return result;
 };
 

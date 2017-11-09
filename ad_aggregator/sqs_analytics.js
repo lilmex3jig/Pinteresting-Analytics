@@ -27,7 +27,7 @@ const receiveMessageAnalytics = () => {
     if (err) {
       console.log('Receive Error', err);
     } else if (data.Messages) {
-      console.log('this is data.Messages.Body', data.Messages[0].Body);
+      console.log('Receiving information: ', data.Messages[0].Body);
       let result = JSON.parse(data.Messages[0].Body);
       console.log('updating userID: ', result.userId);
       db.updateUser(result.userId, result.numAds, result.interests[0], result.interests[1], result.interests[2]);

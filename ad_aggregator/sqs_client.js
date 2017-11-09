@@ -50,14 +50,13 @@ const receiveMessage = () => {
     } else if (data.Messages) {
       let result = JSON.parse(data.Messages[0].Body);
       db.findUser(result.userId)
-
         .then((userInfo) => {
           console.log(`UserId:${result.userId}, Ratio wanted: ${userInfo[0].ratio}, Adinterest: [${userInfo[0].interest1}, ${userInfo[0].interest2}, ${userInfo[0].interest3}]`)
-          let newQuery = helper.weightedResult(userInfo[0].ratio, [userInfo[0].interest1, userInfo[0].interest2, userInfo[0].interest3])
+          let newQuery = helper.weightedResult(userInfo[0].ratio, [userInfo[0].interest1, userInfo[0].interest2, userInfo[0].interest3]);
           let queryPromises = Object.entries(newQuery).map((el) => {
             return db.queryAdsInt(el[1], el[0]);
           });
-          return Promise.all(queryPromises)
+          return Promise.all(queryPromises);
         })
         .then((ads) => {
           let finalResult = [];
@@ -76,9 +75,14 @@ const receiveMessage = () => {
           console.log('Updating balance or retiring these ad_groups:', balanceUpdater);
           let balancePromises = Object.entries(balanceUpdater).map((ad_group) => {
             return db.updateAdGroupBalance(ad_group[0], ad_group[1]);
+
           });
           return Promise.all(balancePromises);
-          console.log('FINISHED');
+        }).then(()=> {
+          // check database if the three main interest id's are low in stock of ads
+          //let activeAdsLeft = db.checkActiveAds(userInfo[0].interest1);
+          //activeAdsLeft.then(()=> console.log('ACTIVE ADS LEFT', activeAdsLeft.length));
+          console.log('Finished!');
         });
 
       const deleteParams = {
@@ -103,7 +107,7 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 } else {
-  setInterval(receiveMessage, 50);
+  setInterval(receiveMessage, 2000);
   console.log(`There are ${numCPUs} threads avavilable`);  
   const app = express();
 

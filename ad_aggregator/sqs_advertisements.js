@@ -24,6 +24,7 @@ const sendMessage = (amount, ad_categories) => {
       console.log('Error', err);
     } else {
       console.log('Success', data.MessageId);
+      console.log('Sent Message to Advertisement Component Requesting Ads!');
     }
   });
 };
@@ -47,6 +48,7 @@ const receiveMessage = () => {
       console.log('Receive Error', err);
     } else if (data.Messages) {
       //Adds ads from advertisements component to local database
+      console.log('Advertisements response with ads, adding to local DB');
       let results = JSON.parse(data.Messages[0].Body);
       results.forEach((result) => {
         let adId = result.ad_id;
@@ -91,15 +93,15 @@ if (cluster.isMaster) {
 
   //sends a sqs message to the queue via a call to /ads route to prepopulate database
   app.get('/initialize', (req, res) => {
-    for (var i = 4; i <= 10; i ++) {
-      sendMessage(200, [i, 2, 3]);
+    for (var i = 1; i <= 10; i ++) {
+      sendMessage(9, [i, 1, 1]);
     }
     res.send('Initializing database with 200 ads for each interest ID from Advertisements component');
   });
 
   app.get('/callfornewads', (req, res) => {
-      sendMessage(200, [1, 2, 3]);
-    }
+
+    sendMessage(200, [1, 2, 3]);
     res.send('Initializing database with 200 ads for each interest ID from Advertisements component');
   });
 
@@ -116,3 +118,7 @@ if (cluster.isMaster) {
   app.listen(5002);
   console.log(`Worker ${process.pid} started`);
 }
+
+module.exports = {
+  sendMessage
+};

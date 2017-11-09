@@ -38,23 +38,23 @@ const adGeneration = (n) => {
   for (var i = adAmount; i < adAmount + 500; i++) {    
     let id = i + 1;
     let rand_ad_group_id = Math.ceil(Math.random() * 10000);
-    let name = NAME[Math.floor(Math.random() * 69)]
+    let name = NAME[Math.floor(Math.random() * 69)];
     let rand_ad_url = name + '.com/product/';
     let rand_img_url = rand_ad_url + 'image.jpeg';
     let active = true;
     let adGroupId = Math.ceil(Math.random() * 10000); // start with 10000 ad groups
-    let cpm = (Math.random() * 9.9).toFixed(2); //max bid will be 10
-    let cpc = (Math.random() * 9.9).toFixed(2);
-    let daily_budget = Math.ceil(Math.random() * 100) + 10; //limit daily budget to 100 first
+    let cpm = (Math.random() * 2).toFixed(2); //max bid will be 2
+    let cpc = (Math.random() * 2).toFixed(2);
+    let daily_budget = Math.ceil(Math.random() * 10) + 10; //limit daily budget to 10 first
     let daily_balance = 0; 
     let main_interest_id = Math.ceil(Math.random() * 10);
     let utc_offset = UTC[Math.floor(Math.random() * 105)]; //increases by 15 from -12:00 - +14:00 UTC
-    db.addAdvertisement(id, rand_ad_group_id, name, DESC[Math.floor(Math.random() * 11)], rand_ad_url, rand_img_url, cpm, cpc, daily_budget, daily_balance, main_interest_id, active, utc_offset);
+    db.addAdvertisement(id, rand_ad_group_id, name, DESC[Math.floor(Math.random() * 11)], rand_ad_url, rand_img_url, cpm, cpc, daily_budget, daily_balance, main_interest_id, utc_offset, active);
   }
 };
 
 let j = 0;
-const howManyTimes = 500; // Generates 1 million users to Database in about ~10 minutes
+const howManyTimes = 10000; // Generates 1 million users to Database in about ~10 minutes
 const f = () => {
   adGeneration(j);
   j++;

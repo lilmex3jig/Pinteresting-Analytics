@@ -24,7 +24,6 @@ const simulateResponse = () => {
   };
 };
 
-
 const sendMessage = () => {
   const params = {
     MessageBody: JSON.stringify(simulateResponse()),

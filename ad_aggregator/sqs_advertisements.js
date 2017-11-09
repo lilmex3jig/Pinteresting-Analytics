@@ -4,9 +4,7 @@ const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 const helper = require('./helper.js');
 const db = require('../database-mysql');
-
 AWS.config.loadFromPath('../config.json');
-
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
 
 const queueURL = {
@@ -46,10 +44,10 @@ const receiveMessage = () => {
 
   sqs.receiveMessage(params, (err, data) => {
     if (err) {
-      // console.log("Receive Error", err);
+      console.log('Receive Error', err);
     } else if (data.Messages) {
-
-      let results = JSON.parse(data.Messages[0].Body)
+      //Adds ads from advertisements component to local database
+      let results = JSON.parse(data.Messages[0].Body);
       results.forEach((result) => {
         let adId = result.ad_id;
         let adGroupId = result.ad_group_id;
@@ -83,25 +81,38 @@ const receiveMessage = () => {
 
 if (cluster.isMaster) {
   console.log(`Master ${process.pid} is running`);
-
   for (let i = 0; i < numCPUs; i += 1) {
     cluster.fork();
   }
 } else {
+  //Consume Messages every n seconds..
   setInterval(receiveMessage, 4000);
-
   const app = express();
-  //sends a sqs message to the queue via a call to /ads route
-  app.get('/ads', (req, res) => {
-    // for (var i = 4; i < 10; i ++) {
-    //   sendMessage(200, [i, 2, 3]);
-    // }
-    sendMessage(200, [10, 2, 3])
-    res.send('SQS Message Sent to Advertisements Queue');
+
+  //sends a sqs message to the queue via a call to /ads route to prepopulate database
+  app.get('/initialize', (req, res) => {
+    for (var i = 4; i <= 10; i ++) {
+      sendMessage(200, [i, 2, 3]);
+    }
+    res.send('Initializing database with 200 ads for each interest ID from Advertisements component');
   });
 
+  app.get('/callfornewads', (req, res) => {
+      sendMessage(200, [1, 2, 3]);
+    }
+    res.send('Initializing database with 200 ads for each interest ID from Advertisements component');
+  });
+
+  app.get('/testbalance', (req, res) => {
+    setInterval(()=>{ db.updateAdGroupBalance(6267251, 500); }, 3000);
+    res.send('ad_group_id 6267251 should be having its balance updated every 3 seconds');
+  });
+
+  app.get('/retire', (req, res) => {
+    db.retireAd(6267251);
+    res.send('Ad_group_id 6267251 will now be retired');
+  });
 
   app.listen(5002);
-
   console.log(`Worker ${process.pid} started`);
 }

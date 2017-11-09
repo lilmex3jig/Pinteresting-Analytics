@@ -48,28 +48,16 @@ const receiveMessage = () => {
     if (err) {
       console.log('Received Error', err);
     } else if (data.Messages) {
-
       let result = JSON.parse(data.Messages[0].Body);
       db.findUser(result.userId)
+
         .then((userInfo) => {
           console.log(`UserId:${result.userId}, Ratio wanted: ${userInfo[0].ratio}, Adinterest: [${userInfo[0].interest1}, ${userInfo[0].interest2}, ${userInfo[0].interest3}]`)
-          //old query for just the top ad interest
           let newQuery = helper.weightedResult(userInfo[0].ratio, [userInfo[0].interest1, userInfo[0].interest2, userInfo[0].interest3])
-          let adsForClient = [];
-          console.log(newQuery);
-
-          //will seperate the top 3 interest into 3 queries to DB
-          // Promise.all()
           let queryPromises = Object.entries(newQuery).map((el) => {
             return db.queryAdsInt(el[1], el[0]);
           });
-          
           return Promise.all(queryPromises)
-          // newQu
-          // }
-
-          // //return db.queryAdsInt(userInfo[0].ratio, userInfo[0].interest1);
-          // return adsForClient;
         })
         .then((ads) => {
           let finalResult = [];
@@ -77,27 +65,21 @@ const receiveMessage = () => {
             finalResult = finalResult.concat(ads[i]);
           }
           console.log(`UserId:${result.userId}, will be receiving these ads: `, finalResult);
-  
-          //send message to client SQS HERE, should work!
-          //needs formatting
-          //let userJD = [9875, 9876, 9877][Math.floor(Math.random() * 3)];
-          //this is for jordans client component to test with these specific users
           sendMessage({
             userId: result.userId,
             ads: finalResult
           });
-          return ads;
+          return finalResult;
         })
-        // .then((ads) => {
-        //   console.log('COMPLETE');
-        //   ads.forEach((ad) => {
-        //     console.log('Ad group id that needs balance to increase: ', ad.ad_group_id);
-        //   })
-          // update the balance for ad_group
-          // we know the ad_group_ids and we need to increase their balance by cpm
-          
-          //if balance > ad_group_budget  RETIRE
-        // });
+        .then((ads) => {
+          let balanceUpdater = helper.getGroupIdAndAmount(ads);
+          console.log('Updating balance or retiring these ad_groups:', balanceUpdater);
+          let balancePromises = Object.entries(balanceUpdater).map((ad_group) => {
+            return db.updateAdGroupBalance(ad_group[0], ad_group[1]);
+          });
+          return Promise.all(balancePromises);
+          console.log('FINISHED');
+        });
 
       const deleteParams = {
         QueueUrl: queueURL.request,
@@ -121,7 +103,7 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 } else {
-  setInterval(receiveMessage, 5000);
+  setInterval(receiveMessage, 50);
   console.log(`There are ${numCPUs} threads avavilable`);  
   const app = express();
 

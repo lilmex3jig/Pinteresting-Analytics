@@ -52,7 +52,7 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 } else {
-  setInterval(receiveMessageAnalytics, 3000); 
+  setInterval(receiveMessageAnalytics, 5000); 
   console.log(`Worker ${process.pid} started`);
 }
 

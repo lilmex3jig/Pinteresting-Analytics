@@ -93,9 +93,19 @@ const retireAd = (ad_group_id, callback) => {
   });
 };
 
-const updateAdGroupBalance = (ad_group_id, ad_group_balance, cpm, callback) => {
+
+const updateAdGroupBalance = (ad_group_id, times, callback) => {
   return new Promise((resolve, reject) => {
-    connection.query('UPDATE advertisements SET balance = (sum of balance + cpm)', (err, result) => {
+    connection.query(`
+    UPDATE advertisements 
+    SET 
+    daily_balance = daily_balance + ${times} * (cpm/1000), 
+    active = CASE
+                      WHEN daily_balance + cpm/1000 > daily_budget THEN false
+                      WHEN daily_balance + cpm/1000 <= daily_budget THEN true
+                    END
+    WHERE ad_group_id = ${ad_group_id};
+    `, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -104,6 +114,20 @@ const updateAdGroupBalance = (ad_group_id, ad_group_balance, cpm, callback) => {
     });
   });
 };
+
+
+
+// const updateAdGroupBalance = (ad_group_id, times, callback) => {
+//   return new Promise((resolve, reject) => {
+//     connection.query(`UPDATE advertisements SET daily_balance = daily_balance + ${times} * (cpm/1000) WHERE ad_group_id = ${ad_group_id};`, (err, result) => {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         resolve(result);
+//       }
+//     });
+//   });
+// };
 
 module.exports = {
   addUser,

@@ -14,27 +14,25 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 //Main router that takes in a userID and returns them the ads.
-app.post('/clientgenerator', (req, res) => {
-  //get the user ratio and top interests
-  //polls incoming sqs calls
-  db.findUser(req.body.user_id) 
-    .then((result) => {
-      //bid simulation here which is finding the ads that will be returned to client
-      //sends information to advertisements
-      return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
-    })
-    .then((results) => {
-      //return the ads to the client here
-      //polls results from advertiesments and sends it back to client
-      console.log('Here are the ' + results.length + ' ads requested: ', results);
-      res.send(results);
-    })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
-});
-
-
+// app.post('/clientgenerator', (req, res) => {
+//   //get the user ratio and top interests
+//   //polls incoming sqs calls
+//   db.findUser(req.body.user_id) 
+//     .then((result) => {
+//       //bid simulation here which is finding the ads that will be returned to client
+//       //sends information to advertisements
+//       return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
+//     })
+//     .then((results) => {
+//       //return the ads to the client here
+//       //polls results from advertiesments and sends it back to client
+//       console.log('Here are the ' + results.length + ' ads requested: ', results);
+//       res.send(results);
+//     })
+//     .catch((err) => {
+//       res.status(500).send(err);
+//     });
+// });
 
 //  This is where analytics will update a users ratio and top interest
 app.post('/analytics', (req, res) => {
@@ -57,7 +55,6 @@ app.post('/ads', (req, res) => {
   //here is where we add ad's to the advertisements table
   //we will update the database with the new ads here
   //as well as any changes to the status of the specific ads
-
   res.send('Server responds back');
 });
 

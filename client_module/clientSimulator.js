@@ -3,7 +3,6 @@ const AWS = require('aws-sdk');
 AWS.config.loadFromPath('../config.json');
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
 
-
 const queueURL = {
   send: 'https://sqs.us-west-1.amazonaws.com/854541618844/client_request',
   receive: 'https://sqs.us-west-1.amazonaws.com/854541618844/client_response',
@@ -19,28 +18,28 @@ const generateUserId = (i) => {
 const generateRandomUserId = (amount) => {
   return {userId: Math.ceil(Math.random() * amount )};
 };
-
+//in MessageBody, choose either generateUserId or generateRandomUserId
 const sendMessage = (i) => {
   const params = {
-    MessageBody: JSON.stringify(generateUserId(i)),
+    MessageBody: JSON.stringify(generateUserId(i)), 
     QueueUrl: queueURL.send,
   };
 
   sqs.sendMessage(params, (err, data) => {
     if (err) {
-      console.log("Error", err);
+      console.log('Error', err);
     } else {
       console.log(`Client sent userId: ${i} to Aggregator via SQS`);
-      console.log("Success", data.MessageId);
+      console.log('Success', data.MessageId);
     }
   });
 };
-
-setInterval(()=> {sendMessage(i); i++}, 1000);
-
-
+// Sends a user into the client_request queue between client and ad_aggregator
+setInterval(()=> { sendMessage(i); i++; }, 1000);
 
 
+
+// OLD CODE for http request from client to ad_aggregator
 // sends in a random userID ever second
 // setInterval(() => {
 //   i++;

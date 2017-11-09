@@ -4,6 +4,7 @@ const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 const db = require('../database-mysql');
 const Promise = require('bluebird');
+const helper = require('./helper.js');
 AWS.config.loadFromPath('../config.json');
 
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
@@ -21,10 +22,10 @@ const sendMessage = (ads) => {
 
   sqs.sendMessage(params, (err, data) => {
     if (err) {
-      console.log("Error", err);
+      console.log('Error', err);
     } else {
       console.log('Aggregator sent back ads to client!');
-      console.log("Success", data.MessageId);
+      console.log('Success', data.MessageId);
     }
   });
 };
@@ -45,48 +46,44 @@ const receiveMessage = () => {
 
   sqs.receiveMessage(params, (err, data) => {
     if (err) {
-      console.log("Received Error", err);
+      console.log('Received Error', err);
     } else if (data.Messages) {
-/*
-  db.findUser(req.body.user_id) 
-    .then((result) => {
-      //bid simulation here which is finding the ads that will be returned to client
-      //sends information to advertisements
-      return db.queryAds(result[0].user_ratio, Math.ceil(Math.random() * 1000))
-    })
-    .then((results) => {
-      //return the ads to the client here
-      //polls results from advertiesments and sends it back to client
-      console.log('Here are the ' + results.length + ' ads requested: ', results);
-      res.send(results);
-    })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
-*/
-
-    //if we receive a userId...
-
-    //we want to query the database to get the ratio and top ads
       let result = JSON.parse(data.Messages[0].Body);
       db.findUser(result.userId)
         .then((userInfo) => {
-          console.log(`UserId:${result.userId}, Ratio wanted: ${userInfo[0].user_ratio}, Adinterest: [${userInfo[0].user_interest1_id}, ${userInfo[0].user_interest2_id}, ${userInfo[0].user_interest3_id}]`)
-          return db.queryAdsInt(userInfo[0].user_ratio, userInfo[0].user_interest1_id)
+          console.log(`UserId:${result.userId}, Ratio wanted: ${userInfo[0].ratio}, Adinterest: [${userInfo[0].interest1}, ${userInfo[0].interest2}, ${userInfo[0].interest3}]`)
+          let newQuery = helper.weightedResult(userInfo[0].ratio, [userInfo[0].interest1, userInfo[0].interest2, userInfo[0].interest3]);
+          let queryPromises = Object.entries(newQuery).map((el) => {
+            return db.queryAdsInt(el[1], el[0]);
+          });
+          return Promise.all(queryPromises);
         })
         .then((ads) => {
-          console.log(`UserId:${result.userId}, will be receiving these ads: `, ads);
-          //send message to client SQS HERE, should work!
-          //needs formatting
-          sendMessage(ads);
-          
+          let finalResult = [];
+          for (let i = 0; i < ads.length; i++) {
+            finalResult = finalResult.concat(ads[i]);
+          }
+          console.log(`UserId:${result.userId}, will be receiving these ads: `, finalResult);
+          sendMessage({
+            userId: result.userId,
+            ads: finalResult
+          });
+          return finalResult;
         })
-        .then(() => {
-          console.log('COMPLETE')
-          // update the balance for ad_group
-          //if balance > ad_group_budget  RETIRE
-        });
+        .then((ads) => {
+          let balanceUpdater = helper.getGroupIdAndAmount(ads);
+          console.log('Updating balance or retiring these ad_groups:', balanceUpdater);
+          let balancePromises = Object.entries(balanceUpdater).map((ad_group) => {
+            return db.updateAdGroupBalance(ad_group[0], ad_group[1]);
 
+          });
+          return Promise.all(balancePromises);
+        }).then(()=> {
+          // check database if the three main interest id's are low in stock of ads
+          //let activeAdsLeft = db.checkActiveAds(userInfo[0].interest1);
+          //activeAdsLeft.then(()=> console.log('ACTIVE ADS LEFT', activeAdsLeft.length));
+          console.log('Finished!');
+        });
 
       const deleteParams = {
         QueueUrl: queueURL.request,
@@ -94,9 +91,9 @@ const receiveMessage = () => {
       };
       sqs.deleteMessage(deleteParams, (err, data) => {
         if (err) {
-          console.log("Delete Error", err);
+          console.log('Delete Error', err);
         } else {
-          console.log("Message Deleted", data);
+          console.log('Message Deleted', data);
         }
       });
     }
@@ -110,11 +107,11 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 } else {
-  setInterval(receiveMessage, 1000);
+  setInterval(receiveMessage, 2000);
   console.log(`There are ${numCPUs} threads avavilable`);  
   const app = express();
 
-  app.listen(5000);
+  app.listen(5001);
 
   console.log(`Worker ${process.pid} started`);
 }
